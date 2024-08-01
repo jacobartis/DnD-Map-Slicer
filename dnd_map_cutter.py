@@ -58,6 +58,53 @@ def new_print_page(img:cv.typing.MatLike,x_start,y_start,sw:int=0,sh:int=0,horiz
     #Returns the new img
     return new_img
 
+
+def generate_printable_map(img, width:float, height:float, add_grid:bool=True, horizontal:bool=False):
+    #Generates the amount of pixels to a square
+    square_dim = np.zeros(2) 
+    square_dim[WIDTH] = img.shape[WIDTH]/width
+    square_dim[HEIGHT] = img.shape[HEIGHT]/height
+
+    #Generates a new copy of the img.
+    new_img = copy_img(img)
+
+    #Puts an inch grid over the img.
+    if add_grid:
+        grid(new_img,np.array([0,0,0]),1,0,0,x_gap=square_dim[WIDTH],y_gap=square_dim[HEIGHT])
+
+    #Displays the imgs
+    cv.imshow("Original",img)
+    cv.imshow("New",new_img)
+
+    #Calculates how many pages to print
+    print_quant = [0,0]
+    print_quant[WIDTH] = m.ceil(img_squares[WIDTH]/PAGE_SQ_X)
+    print_quant[HEIGHT] = m.ceil(img_squares[HEIGHT]/PAGE_SQ_Y)
+    if horizontal:
+        print_quant[WIDTH] = m.ceil(img_squares[WIDTH]/PAGE_SQ_Y)
+        print_quant[HEIGHT] = m.ceil(img_squares[HEIGHT]/PAGE_SQ_X)
+
+    print("Pages to print ",print_quant)
+
+    for y in range(print_quant[HEIGHT]):
+        for x in range(print_quant[WIDTH]):
+            cur = new_print_page(new_img,x_start=x*PAGE_SQ_X,y_start=y*PAGE_SQ_Y,sw=square_dim[WIDTH],sh=square_dim[HEIGHT],horizontal=horiz_input)
+            try:   
+                cv.imwrite("{}_{}.png".format(x,y),cur)
+                cv.imshow("{}_{}.png".format(x,y),cur)
+            except:
+                pass
+
+    print("S to close preview")
+    cv.imwrite("new_img.png",new_img)
+    #Allows for updated img in window
+    while True:
+        #Waits untill key is pressed
+        k = cv.waitKey(1)
+        if k == ord("s"):
+            
+            break
+
 #Gets valid map
 img = None
 while img is None:
@@ -117,47 +164,4 @@ while not horiz_input:
         print("Please enter y or n")
 
 
-#Generates the amount of pixels to a square
-square_dim = np.zeros(2) 
-square_dim[WIDTH] = img.shape[WIDTH]/img_squares[WIDTH]
-square_dim[HEIGHT] = img.shape[HEIGHT]/img_squares[HEIGHT]
-
-#Generates a new copy of the img.
-new_img = copy_img(img)
-
-#Puts an inch grid over the img.
-if grid_input:
-    grid(new_img,np.array([0,0,0]),1,0,0,x_gap=square_dim[WIDTH],y_gap=square_dim[HEIGHT])
-
-#Displays the imgs
-cv.imshow("Original",img)
-cv.imshow("New",new_img)
-
-#Calculates how many pages to print
-print_quant = [0,0]
-print_quant[WIDTH] = m.ceil(img_squares[WIDTH]/PAGE_SQ_X)
-print_quant[HEIGHT] = m.ceil(img_squares[HEIGHT]/PAGE_SQ_Y)
-if horiz_input:
-    print_quant[WIDTH] = m.ceil(img_squares[WIDTH]/PAGE_SQ_Y)
-    print_quant[HEIGHT] = m.ceil(img_squares[HEIGHT]/PAGE_SQ_X)
-
-print("Pages to print ",print_quant)
-
-for y in range(print_quant[HEIGHT]):
-    for x in range(print_quant[WIDTH]):
-        cur = new_print_page(new_img,x_start=x*PAGE_SQ_X,y_start=y*PAGE_SQ_Y,sw=square_dim[WIDTH],sh=square_dim[HEIGHT],horizontal=horiz_input)
-        try:   
-            cv.imwrite("{}_{}.png".format(x,y),cur)
-            cv.imshow("{}_{}.png".format(x,y),cur)
-        except:
-            pass
-
-print("S to close preview")
-#Allows for updated img in window
-while True:
-    #Waits untill key is pressed
-    k = cv.waitKey(1)
-    if k == ord("s"):
-        cv.imwrite("new_img.png",new_img)
-        break
-
+generate_printable_map(img, img_squares[WIDTH],img_squares[HEIGHT],grid_input,horiz_input)
