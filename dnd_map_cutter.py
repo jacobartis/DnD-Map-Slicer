@@ -84,17 +84,17 @@ def generate_printable_map(img, width:float, height:float, add_grid:bool=True, h
 
     #Calculates how many pages to print
     print_quant = [0,0]
-    print_quant[WIDTH] = m.ceil(img_squares[WIDTH]/PAGE_SQ_X)
-    print_quant[HEIGHT] = m.ceil(img_squares[HEIGHT]/PAGE_SQ_Y)
+    print_quant[WIDTH] = m.ceil(width/PAGE_SQ_X)
+    print_quant[HEIGHT] = m.ceil(height/PAGE_SQ_Y)
     if horizontal:
-        print_quant[WIDTH] = m.ceil(img_squares[WIDTH]/PAGE_SQ_Y)
-        print_quant[HEIGHT] = m.ceil(img_squares[HEIGHT]/PAGE_SQ_X)
+        print_quant[WIDTH] = m.ceil(width/PAGE_SQ_Y)
+        print_quant[HEIGHT] = m.ceil(height/PAGE_SQ_X)
 
     print("Pages to print ",print_quant)
 
     for y in range(print_quant[HEIGHT]):
         for x in range(print_quant[WIDTH]):
-            cur = new_print_page(new_img,x_start=x*PAGE_SQ_X,y_start=y*PAGE_SQ_Y,sw=square_dim[WIDTH],sh=square_dim[HEIGHT],horizontal=horiz_input)
+            cur = new_print_page(new_img,x_start=x*PAGE_SQ_X,y_start=y*PAGE_SQ_Y,sw=square_dim[WIDTH],sh=square_dim[HEIGHT],horizontal=horizontal)
             try:   
                 cv.imwrite("{}_{}.png".format(x,y),cur)
                 cv.imshow("{}_{}.png".format(x,y),cur)
