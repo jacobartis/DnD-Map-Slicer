@@ -152,15 +152,12 @@ for y in range(print_quant[HEIGHT]):
         except:
             pass
 
-
+print("S to close preview")
 #Allows for updated img in window
 while True:
     #Waits untill key is pressed
     k = cv.waitKey(1)
-    cv.imshow("New",new_img)
     if k == ord("s"):
         cv.imwrite("new_img.png",new_img)
-        break
-    if k == ord("p"):
         break
 
