@@ -10,6 +10,12 @@ HEIGHT = 0
 PAGE_SQ_X = 8
 PAGE_SQ_Y = 11.5
 
+def load_map(path):
+    try:
+        return cv.imread(cv.samples.findFile("{}".format(path)))
+    except:
+        return None
+
 #Draws a vertical
 def vertical_line(img:cv.Mat, colour:np.array, pos:int, size:int):
     img[:img.shape[HEIGHT],pos:pos+size] = colour
@@ -105,63 +111,66 @@ def generate_printable_map(img, width:float, height:float, add_grid:bool=True, h
             
             break
 
-#Gets valid map
-img = None
-while img is None:
-    map_path = input("Map file: ")
-    #Generates img obj reading from file
-    try:
-        img = cv.imread(cv.samples.findFile("{}".format(map_path)))
-        print("Img dim",img.shape)
-    except:
-        print("map not found.")
+def main():
+    #Gets valid map
+    img = None
+    while img is None:
+        map_path = input("Map file: ")
+        #Generates img obj reading from file
+        try:
+            img = load_map(map_path)
+            print("Img dim",img.shape)
+        except:
+            print("map not found.")
 
-#User input for map size in squares
-img_squares = np.zeros(2)
-while not img_squares[WIDTH]:
-    x_squares = input("Enter img width in squares.")
-    try:
-        assert int(x_squares)>0
-        img_squares[WIDTH] = int(x_squares)
-        break
-    except:
-        print("Please enter a valid number.")
+    #User input for map size in squares
+    img_squares = np.zeros(2)
+    while not img_squares[WIDTH]:
+        x_squares = input("Enter img width in squares.")
+        try:
+            assert int(x_squares)>0
+            img_squares[WIDTH] = int(x_squares)
+            break
+        except:
+            print("Please enter a valid number.")
 
-while not img_squares[HEIGHT]:
-    y_squares = input("Enter img height in squares.")
-    try:
-        assert int(y_squares)>0
-        img_squares[HEIGHT] = int(y_squares)
-        print("Img square dim",img_squares)
-        break
-    except:
-        print("Please enter a valid number.")
+    while not img_squares[HEIGHT]:
+        y_squares = input("Enter img height in squares.")
+        try:
+            assert int(y_squares)>0
+            img_squares[HEIGHT] = int(y_squares)
+            print("Img square dim",img_squares)
+            break
+        except:
+            print("Please enter a valid number.")
 
-#User input for drawing extra grid
-grid_input = None
+    #User input for drawing extra grid
+    grid_input = None
 
-while not grid_input:
-    g_in = input("Add grid to pages? (y/n)").capitalize()
-    try:
-        assert g_in == "Y" or g_in == "N"
-        grid_input = g_in == "Y"
-        print("Add grid: ",grid_input)
-        break
-    except:
-        print("Please enter y or n")
+    while not grid_input:
+        g_in = input("Add grid to pages? (y/n)").capitalize()
+        try:
+            assert g_in == "Y" or g_in == "N"
+            grid_input = g_in == "Y"
+            print("Add grid: ",grid_input)
+            break
+        except:
+            print("Please enter y or n")
 
-#User input for creating horizontal images
-horiz_input = None
+    #User input for creating horizontal images
+    horiz_input = None
 
-while not horiz_input:
-    h_in = input("Horrizontal pages? (y/n)").capitalize()
-    try:
-        assert h_in == "Y" or h_in == "N"
-        horiz_input = h_in == "Y"
-        print("Horizontal pages: ",grid_input)
-        break
-    except:
-        print("Please enter y or n")
+    while not horiz_input:
+        h_in = input("Horrizontal pages? (y/n)").capitalize()
+        try:
+            assert h_in == "Y" or h_in == "N"
+            horiz_input = h_in == "Y"
+            print("Horizontal pages: ",grid_input)
+            break
+        except:
+            print("Please enter y or n")
 
+    generate_printable_map(img, img_squares[WIDTH],img_squares[HEIGHT],grid_input,horiz_input)
 
-generate_printable_map(img, img_squares[WIDTH],img_squares[HEIGHT],grid_input,horiz_input)
+if __name__ == "__main__":
+    main()
