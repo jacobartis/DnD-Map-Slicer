@@ -10,11 +10,18 @@ HEIGHT = 0
 PAGE_SQ_X = 8
 PAGE_SQ_Y = 11.5
 
-def load_map(path):
+def load_map(path) -> list:
     try:
         return cv.imread(cv.samples.findFile("{}".format(path)))
     except:
-        return None
+        return []
+
+def calculate_grid_size(img,width:int,height:int):
+    #Generates the amount of pixels to a square
+    square_dim = np.zeros(2) 
+    square_dim[WIDTH] = img.shape[WIDTH]/width
+    square_dim[HEIGHT] = img.shape[HEIGHT]/height
+    return square_dim
 
 #Draws a vertical
 def vertical_line(img:cv.Mat, colour:np.array, pos:int, size:int):
@@ -23,18 +30,18 @@ def vertical_line(img:cv.Mat, colour:np.array, pos:int, size:int):
 def horizontal_line(img:cv.Mat, colour:np.array, pos:int, size:int):
     img[pos:pos+size,:img.shape[WIDTH]] = colour
 
-def grid(img:cv.Mat, colour:np.array, size:int, x_offset:int, y_offset:int, x_gap:int=1, y_gap:int=1):
-    for x in range(int(img.shape[WIDTH]/x_gap)):
-        vertical_line(img,colour,int(x*x_gap)+x_offset,size)
-    for y in range(int(img.shape[HEIGHT]/y_gap)):
-        horizontal_line(img,colour,int(y*y_gap)+y_offset,size)
+def grid(img:cv.Mat, colour:np.array, size:int, width, height):
+    square_dim = calculate_grid_size(img,width,height)
+    for x in range(m.ceil(img.shape[WIDTH]/square_dim[WIDTH])):
+        vertical_line(img,colour,int(x*int(square_dim[WIDTH])),size)
+    for y in range(m.ceil(img.shape[HEIGHT]/square_dim[HEIGHT])):
+        horizontal_line(img,colour,int(y*int(square_dim[HEIGHT])),size)
 
 #Copies a map to a new object
 def copy_img(img:cv.typing.MatLike) -> cv.typing.MatLike:
     new_img = np.zeros((img.shape[HEIGHT],img.shape[WIDTH],3),np.uint8)
     new_img[:,:] = img[:,:]
     return new_img
-
 
 #Generates an A4 Printable section
 def new_print_page(img:cv.typing.MatLike,x_start,y_start,sw:int=0,sh:int=0,horizontal=False) -> cv.typing.MatLike:
@@ -64,23 +71,22 @@ def new_print_page(img:cv.typing.MatLike,x_start,y_start,sw:int=0,sh:int=0,horiz
     #Returns the new img
     return new_img
 
-
-def generate_printable_map(img, width:float, height:float, add_grid:bool=True, horizontal:bool=False):
-    #Generates the amount of pixels to a square
-    square_dim = np.zeros(2) 
-    square_dim[WIDTH] = img.shape[WIDTH]/width
-    square_dim[HEIGHT] = img.shape[HEIGHT]/height
+#TODO Make it form and return an array of the maps
+#Add save to different path option
+def generate_printable_map(img, width:float, height:float, add_grid:bool=True, horizontal:bool=False, show:bool=False):
 
     #Generates a new copy of the img.
     new_img = copy_img(img)
-
+    square_dim = calculate_grid_size(new_img,width,height)
+    print(square_dim)
     #Puts an inch grid over the img.
     if add_grid:
-        grid(new_img,np.array([0,0,0]),1,0,0,x_gap=square_dim[WIDTH],y_gap=square_dim[HEIGHT])
+        grid(new_img,np.array([0,0,0]),1,width,height)
 
     #Displays the imgs
-    cv.imshow("Original",img)
-    cv.imshow("New",new_img)
+    if show:
+        cv.imshow("Original",img)
+        cv.imshow("New",new_img)
 
     #Calculates how many pages to print
     print_quant = [0,0]
@@ -97,19 +103,11 @@ def generate_printable_map(img, width:float, height:float, add_grid:bool=True, h
             cur = new_print_page(new_img,x_start=x*PAGE_SQ_X,y_start=y*PAGE_SQ_Y,sw=square_dim[WIDTH],sh=square_dim[HEIGHT],horizontal=horizontal)
             try:   
                 cv.imwrite("{}_{}.png".format(x,y),cur)
-                cv.imshow("{}_{}.png".format(x,y),cur)
+                if show:
+                    cv.imshow("{}_{}.png".format(x,y),cur)
             except:
                 pass
-
-    print("S to close preview")
     cv.imwrite("new_img.png",new_img)
-    #Allows for updated img in window
-    while True:
-        #Waits untill key is pressed
-        k = cv.waitKey(1)
-        if k == ord("s"):
-            
-            break
 
 def main():
     #Gets valid map
