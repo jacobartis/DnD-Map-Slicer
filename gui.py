@@ -13,7 +13,7 @@ MAX_IMG_HEIGHT = 400
 def convert_map():
     map_img = dnd_map_cutter.load_map(MapPath)
     try:
-        dnd_map_cutter.generate_printable_map(map_img,int(map_width.get()),int(map_height.get()),grid_val.get(),orientaion_pick.get()=="Horizontal",show_val.get())
+        dnd_map_cutter.generate_printable_map(map_img,int(map_width.get()),int(map_height.get()),grid_val.get(),orientaion_pick.get()=="Horizontal")
     except Exception as e:
         print(e)
         return
@@ -26,9 +26,10 @@ def update_img():
     map_img = dnd_map_cutter.load_map(MapPath)
     if grid_val.get():
         dnd_map_cutter.grid(map_img,[0,0,0],3,int(map_width.get()),int(map_height.get()))
-    if orientaion_pick.get()=="Horizontal":
+
+    if cut_val.get() and orientaion_pick.get()=="Horizontal":
         dnd_map_cutter.grid(map_img,[255,0,0],5,int(map_width.get())/11.5,int(map_height.get())/8)
-    else:
+    elif cut_val.get():
         dnd_map_cutter.grid(map_img,[255,0,0],5,int(map_width.get())/8,int(map_height.get())/11.5)
 
     img = cv.cvtColor(map_img, cv.COLOR_BGR2RGB)
@@ -101,19 +102,19 @@ grid_label.grid(row=2, column=0, padx=10, pady=5)
 grid_toggle = tk.Checkbutton(settings_frame,variable=grid_val,command=update_img)
 grid_toggle.grid(row=2, column=1, padx=10, pady=5)
 
+cut_val = tk.BooleanVar()
+cut_label = tk.Label(settings_frame,text="Show cutting lines")
+cut_label.grid(row=3, column=0, padx=10, pady=5)
+cut_toggle = tk.Checkbutton(settings_frame,variable=cut_val,command=update_img)
+cut_toggle.grid(row=3, column=1, padx=10, pady=5)
+
 
 orientation_label = tk.Label(settings_frame,text="Orientation")
-orientation_label.grid(row=3, column=0, padx=10, pady=5)
+orientation_label.grid(row=4, column=0, padx=10, pady=5)
 orientaion_pick = ttk.Combobox(settings_frame,values=["Horizontal", "Virtical"])
 orientaion_pick.current(0)
 orientaion_pick.bind("<<ComboboxSelected>>",lambda _: update_img())
-orientaion_pick.grid(row=3, column=1, padx=10, pady=5)
-
-show_val = tk.BooleanVar()
-show_label = tk.Label(settings_frame,text="Show output")
-show_label.grid(row=4, column=0, padx=10, pady=5)
-show_toggle = tk.Checkbutton(settings_frame,variable=show_val)
-show_toggle.grid(row=4, column=1, padx=10, pady=5)
+orientaion_pick.grid(row=4, column=1, padx=10, pady=5)
 
 #Start button
 go_button = tk.Button(settings_frame,text="go!",command=convert_map)
