@@ -13,14 +13,16 @@ MAX_IMG_HEIGHT = 400
 def convert_map():
     map_img = dnd_map_cutter.load_map(MapPath)
     try:
-        dnd_map_cutter.generate_printable_map(map_img,int(map_width.get()),int(map_height.get()),grid_val.get(),orientaion_pick.get()=="Horizontal")
+        dnd_map_cutter.generate_printable_map(map_img,int(map_width.get()),int(map_height.get()),grid_val.get(),
+                                              page_height=float(cut_height_val.get()),
+                                              page_width=float(cut_width_val.get()))
     except Exception as e:
         print(e)
         return
 
 def update_img():
     try:
-        print(MapPath)
+        test_var = MapPath
     except:
         print("no map")
         return
@@ -29,9 +31,7 @@ def update_img():
     if grid_val.get():
         dnd_map_cutter.grid(map_img,[0,0,0],3,int(map_width.get()),int(map_height.get()))
 
-    if cut_val.get() and orientaion_pick.get()=="Horizontal":
-        dnd_map_cutter.grid(map_img,[255,0,0],5,int(map_width.get())/float(cut_height_val.get()),int(map_height.get())/float(cut_width_val.get()))
-    elif cut_val.get():
+    if cut_val.get():
         dnd_map_cutter.grid(map_img,[255,0,0],5,int(map_width.get())/float(cut_width_val.get()),int(map_height.get())/float(cut_height_val.get()))
 
     img = cv.cvtColor(map_img, cv.COLOR_BGR2RGB)
@@ -114,6 +114,7 @@ map_height.grid(row=0, column=3, padx=10, pady=5)
 grid_show_frame = tk.Frame(grid_frame)
 grid_show_frame.grid(row=2, column=0)
 grid_val = tk.BooleanVar()
+grid_val.set(True)
 grid_label = tk.Label(grid_show_frame,text="Draw Grid: ")
 grid_label.grid(row=2, column=0, padx=10, pady=5)
 grid_toggle = tk.Checkbutton(grid_show_frame,variable=grid_val,command=update_img)
@@ -151,6 +152,7 @@ cut_height.grid(row=0, column=3, padx=10, pady=5)
 cut_show_frame = tk.Frame(cut_frame)
 cut_show_frame.grid(row=2, column=0)
 cut_val = tk.BooleanVar()
+cut_val.set(True)
 cut_label = tk.Label(cut_show_frame,text="Show cutting lines")
 cut_label.grid(row=3, column=0, padx=10, pady=5)
 cut_toggle = tk.Checkbutton(cut_show_frame,variable=cut_val,command=update_img)
@@ -158,14 +160,14 @@ cut_toggle.grid(row=3, column=1, padx=10, pady=5)
 
 #Settings toggles
 
-orientation_frame = tk.Frame(settings_frame)
-orientation_frame.grid(row=5, column=0)
-orientation_label = tk.Label(orientation_frame,text="Orientation")
-orientation_label.grid(row=0, column=0, padx=10, pady=5)
-orientaion_pick = ttk.Combobox(orientation_frame,values=["Horizontal", "Virtical"])
-orientaion_pick.current(0)
-orientaion_pick.bind("<<ComboboxSelected>>",lambda _: update_img())
-orientaion_pick.grid(row=0, column=1, padx=10, pady=5)
+#orientation_frame = tk.Frame(settings_frame)
+#orientation_frame.grid(row=5, column=0)
+#orientation_label = tk.Label(orientation_frame,text="Orientation")
+#orientation_label.grid(row=0, column=0, padx=10, pady=5)
+#orientaion_pick = ttk.Combobox(orientation_frame,values=["Horizontal", "Virtical"])
+#orientaion_pick.current(0)
+#orientaion_pick.bind("<<ComboboxSelected>>",lambda _: update_img())
+#orientaion_pick.grid(row=0, column=1, padx=10, pady=5)
 
 #Start button
 go_button = tk.Button(settings_frame,text="go!",command=convert_map)
