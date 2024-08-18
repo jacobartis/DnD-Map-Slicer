@@ -19,7 +19,9 @@ def convert_map():
         return
 
 def update_img():
-    if not MapPath:
+    try:
+        print(MapPath)
+    except:
         print("no map")
         return
     #Uses PIL to open and resize the img
@@ -28,9 +30,9 @@ def update_img():
         dnd_map_cutter.grid(map_img,[0,0,0],3,int(map_width.get()),int(map_height.get()))
 
     if cut_val.get() and orientaion_pick.get()=="Horizontal":
-        dnd_map_cutter.grid(map_img,[255,0,0],5,int(map_width.get())/11.5,int(map_height.get())/8)
+        dnd_map_cutter.grid(map_img,[255,0,0],5,int(map_width.get())/float(cut_height_val.get()),int(map_height.get())/float(cut_width_val.get()))
     elif cut_val.get():
-        dnd_map_cutter.grid(map_img,[255,0,0],5,int(map_width.get())/8,int(map_height.get())/11.5)
+        dnd_map_cutter.grid(map_img,[255,0,0],5,int(map_width.get())/float(cut_width_val.get()),int(map_height.get())/float(cut_height_val.get()))
 
     img = cv.cvtColor(map_img, cv.COLOR_BGR2RGB)
     pil_img = Image.fromarray(img)
@@ -85,7 +87,17 @@ settings_frame = tk.Frame(ui, width=200, height=500, bg='grey')
 settings_frame.grid(row=1, column=0, padx=10, pady=5)
 
 #Map dimensions
-grid_dim_frame = tk.Frame(settings_frame)
+
+#Frame setup
+grid_frame = tk.Frame(settings_frame)
+grid_frame.grid(row=2, column=0, padx=10, pady=5)
+
+#Label 
+grid_dim_label = tk.Label(grid_frame,text="Grid Dimensions")
+grid_dim_label.grid(row=0, column=0, padx=10, pady=5)
+
+#Frame for width and height 
+grid_dim_frame = tk.Frame(grid_frame)
 grid_dim_frame.grid(row=1, column=0, padx=10, pady=5)
 
 width_label = tk.Label(grid_dim_frame,text="Width: ")
@@ -94,13 +106,12 @@ map_width = tk.Spinbox(grid_dim_frame,command=update_img,from_=1, to=1000)
 map_width.grid(row=0, column=1, padx=10, pady=5)
 
 height_label = tk.Label(grid_dim_frame,text="Height: ")
-height_label.grid(row=1, column=0, padx=10, pady=5)
+height_label.grid(row=0, column=2, padx=10, pady=5)
 map_height = tk.Spinbox(grid_dim_frame,command=update_img,from_=1, to=1000)
-map_height.grid(row=1, column=1, padx=10, pady=5)
+map_height.grid(row=0, column=3, padx=10, pady=5)
 
-
-#Settings toggles
-grid_show_frame = tk.Frame(settings_frame)
+#Toggle button for grid
+grid_show_frame = tk.Frame(grid_frame)
 grid_show_frame.grid(row=2, column=0)
 grid_val = tk.BooleanVar()
 grid_label = tk.Label(grid_show_frame,text="Draw Grid: ")
@@ -108,16 +119,47 @@ grid_label.grid(row=2, column=0, padx=10, pady=5)
 grid_toggle = tk.Checkbutton(grid_show_frame,variable=grid_val,command=update_img)
 grid_toggle.grid(row=2, column=1, padx=10, pady=5)
 
-cut_show_frame = tk.Frame(settings_frame)
-cut_show_frame.grid(row=3, column=0)
+#Cut lines
+
+#Frame setup
+cut_frame = tk.Frame(settings_frame)
+cut_frame.grid(row=3, column=0, padx=10, pady=5)
+
+#Label 
+cut_dim_label = tk.Label(cut_frame,text="Cut Dimensions")
+cut_dim_label.grid(row=0, column=0, padx=10, pady=5)
+
+#Frame for width and height 
+cut_dim_frame = tk.Frame(cut_frame)
+cut_dim_frame.grid(row=1, column=0, padx=10, pady=5)
+
+cut_width_label = tk.Label(cut_dim_frame,text="Width: ")
+cut_width_label.grid(row=0, column=0, padx=10, pady=5)
+cut_width_val = tk.DoubleVar()
+cut_width_val.set(8)
+cut_width = tk.Spinbox(cut_dim_frame,command=update_img,from_=1, to=1000, increment=.5,textvariable=cut_width_val)
+cut_width.grid(row=0, column=1, padx=10, pady=5)
+
+cut_height_label = tk.Label(cut_dim_frame,text="Height: ")
+cut_height_label.grid(row=0, column=2, padx=10, pady=5)
+cut_height_val = tk.DoubleVar()
+cut_height_val.set(11.5)
+cut_height = tk.Spinbox(cut_dim_frame,command=update_img,from_=1, to=1000, increment=.5,textvariable=cut_height_val)
+cut_height.grid(row=0, column=3, padx=10, pady=5)
+
+#Toggle button for grid
+cut_show_frame = tk.Frame(cut_frame)
+cut_show_frame.grid(row=2, column=0)
 cut_val = tk.BooleanVar()
 cut_label = tk.Label(cut_show_frame,text="Show cutting lines")
 cut_label.grid(row=3, column=0, padx=10, pady=5)
 cut_toggle = tk.Checkbutton(cut_show_frame,variable=cut_val,command=update_img)
 cut_toggle.grid(row=3, column=1, padx=10, pady=5)
 
+#Settings toggles
+
 orientation_frame = tk.Frame(settings_frame)
-orientation_frame.grid(row=4, column=0)
+orientation_frame.grid(row=5, column=0)
 orientation_label = tk.Label(orientation_frame,text="Orientation")
 orientation_label.grid(row=0, column=0, padx=10, pady=5)
 orientaion_pick = ttk.Combobox(orientation_frame,values=["Horizontal", "Virtical"])
@@ -127,6 +169,6 @@ orientaion_pick.grid(row=0, column=1, padx=10, pady=5)
 
 #Start button
 go_button = tk.Button(settings_frame,text="go!",command=convert_map)
-go_button.grid(row=5, column=1, padx=10, pady=5)
+go_button.grid(row=6, column=1, padx=10, pady=5)
 
 ui.mainloop()
