@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
-import datetime as dt
 import math as m
+from os import path
 
 WIDTH = 1
 HEIGHT = 0
@@ -74,7 +74,7 @@ def new_print_page(img:cv.typing.MatLike,x_start,y_start,sw:int=0,sh:int=0,horiz
 
 #TODO Make it form and return an array of the maps
 #Add save to different path option
-def generate_printable_map(img, width:float, height:float, add_grid:bool=True, horizontal:bool=False, show:bool=False, page_width=PAGE_SQ_X, page_height=PAGE_SQ_Y):
+def generate_printable_map(img, width:float, height:float, add_grid:bool=True, horizontal:bool=False, show:bool=False, page_width=PAGE_SQ_X, page_height=PAGE_SQ_Y, save_path:str=""):
 
     #Generates a new copy of the img.
     new_img = copy_img(img)
@@ -97,6 +97,10 @@ def generate_printable_map(img, width:float, height:float, add_grid:bool=True, h
         print_quant[HEIGHT] = m.ceil(height/page_width)
 
     print("Pages to print ",print_quant)
+    
+    if not path.isdir(save_path):
+        save_path = ""
+    print("Save Path:",save_path)
 
     for y in range(print_quant[HEIGHT]):
         for x in range(print_quant[WIDTH]):
@@ -104,9 +108,9 @@ def generate_printable_map(img, width:float, height:float, add_grid:bool=True, h
             cur = new_print_page(new_img,x_start=x*page_width,y_start=y*page_height,sw=square_dim[WIDTH],
                                  sh=square_dim[HEIGHT],horizontal=horizontal, page_width=page_width, page_height=page_height)
             try:   
-                cv.imwrite("{}_{}.png".format(x,y),cur)
+                cv.imwrite(save_path+"{}_{}.png".format(x,y),cur)
                 if show:
-                    cv.imshow("{}_{}.png".format(x,y),cur)
+                    cv.imshow(save_path+"{}_{}.png".format(x,y),cur)
             except Exception as e:
                 print(e)
                 pass
