@@ -44,11 +44,11 @@ def copy_img(img:cv.typing.MatLike) -> cv.typing.MatLike:
     return new_img
 
 #Generates an A4 Printable section
-def new_print_page(img:cv.typing.MatLike,x_start,y_start,sw:int=0,sh:int=0,horizontal=False) -> cv.typing.MatLike:
+def new_print_page(img:cv.typing.MatLike,x_start,y_start,sw:int=0,sh:int=0,horizontal=False,page_width=PAGE_SQ_X,page_height=PAGE_SQ_Y) -> cv.typing.MatLike:
     #Generates dimensions of a4 paper
-    w = int(sw*PAGE_SQ_X)
-    h = int(sh*PAGE_SQ_Y)
-    
+    w = int(sw*page_width)
+    h = int(sh*page_height)
+    print("w:{},h:{}".format(page_width,page_height))
     #Generates blank img with a4 dimensions
     new_img = np.zeros([h,w,3],np.uint8)
     if horizontal:
@@ -59,6 +59,7 @@ def new_print_page(img:cv.typing.MatLike,x_start,y_start,sw:int=0,sh:int=0,horiz
     #Converts start to pixels
     x_start = int(x_start*sw)
     y_start = int(y_start*sh)
+    print("s_x:{},s_y:{}".format(x_start,y_start))
 
     #Creates the area being copied
     copy_area = copy_area = img[y_start:y_start+h,x_start:x_start+w]
@@ -73,12 +74,11 @@ def new_print_page(img:cv.typing.MatLike,x_start,y_start,sw:int=0,sh:int=0,horiz
 
 #TODO Make it form and return an array of the maps
 #Add save to different path option
-def generate_printable_map(img, width:float, height:float, add_grid:bool=True, horizontal:bool=False, show:bool=False):
+def generate_printable_map(img, width:float, height:float, add_grid:bool=True, horizontal:bool=False, show:bool=False, page_width=PAGE_SQ_X, page_height=PAGE_SQ_Y):
 
     #Generates a new copy of the img.
     new_img = copy_img(img)
     square_dim = calculate_grid_size(new_img,width,height)
-    print(square_dim)
     #Puts an inch grid over the img.
     if add_grid:
         grid(new_img,np.array([0,0,0]),1,width,height)
@@ -90,22 +90,25 @@ def generate_printable_map(img, width:float, height:float, add_grid:bool=True, h
 
     #Calculates how many pages to print
     print_quant = [0,0]
-    print_quant[WIDTH] = m.ceil(width/PAGE_SQ_X)
-    print_quant[HEIGHT] = m.ceil(height/PAGE_SQ_Y)
+    print_quant[WIDTH] = m.ceil(width/page_width)
+    print_quant[HEIGHT] = m.ceil(height/page_height)
     if horizontal:
-        print_quant[WIDTH] = m.ceil(width/PAGE_SQ_Y)
-        print_quant[HEIGHT] = m.ceil(height/PAGE_SQ_X)
+        print_quant[WIDTH] = m.ceil(width/page_height)
+        print_quant[HEIGHT] = m.ceil(height/page_width)
 
     print("Pages to print ",print_quant)
 
     for y in range(print_quant[HEIGHT]):
         for x in range(print_quant[WIDTH]):
-            cur = new_print_page(new_img,x_start=x*PAGE_SQ_X,y_start=y*PAGE_SQ_Y,sw=square_dim[WIDTH],sh=square_dim[HEIGHT],horizontal=horizontal)
+            print("x:{},y:{}".format(x,y))
+            cur = new_print_page(new_img,x_start=x*page_width,y_start=y*page_height,sw=square_dim[WIDTH],
+                                 sh=square_dim[HEIGHT],horizontal=horizontal, page_width=page_width, page_height=page_height)
             try:   
                 cv.imwrite("{}_{}.png".format(x,y),cur)
                 if show:
                     cv.imshow("{}_{}.png".format(x,y),cur)
-            except:
+            except Exception as e:
+                print(e)
                 pass
     cv.imwrite("new_img.png",new_img)
 
