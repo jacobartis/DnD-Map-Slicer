@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, askdirectory
 from tkinter import messagebox
 from PIL import ImageTk, Image
 import cv2 as cv
@@ -11,11 +11,16 @@ MAX_IMG_HEIGHT = 400
 
 #Splits the map using the dnd_map_cutter script
 def convert_map():
+    path = ""
+    try:
+        path = SavePath
+    except:
+        pass
     map_img = dnd_map_cutter.load_map(MapPath)
     try:
         dnd_map_cutter.generate_printable_map(map_img,int(map_width.get()),int(map_height.get()),grid_val.get(),
                                               page_height=float(cut_height_val.get()),
-                                              page_width=float(cut_width_val.get()))
+                                              page_width=float(cut_width_val.get()), save_path=path)
     except Exception as e:
         print(e)
         return
@@ -43,9 +48,7 @@ def update_img():
 
 #Allows the user to select an img path from their folder
 def get_new_map():
-
     temp_file = askopenfilename()
-    print(type(dnd_map_cutter.load_map(temp_file)))
     if dnd_map_cutter.load_map(temp_file) is None:
         messagebox.showerror("Error loading img","The selected img can't be loaded")
         return
@@ -59,6 +62,17 @@ def get_new_map():
     #Show the current file name
     name = MapPath.split("/")
     map_label.config(text=name[len(name)-1])
+
+
+def get_save_path():
+    temp_dir = askdirectory()
+    
+    if not temp_dir.endswith("/"):
+        temp_dir = temp_dir+"/"
+    #Creates a global variable with the path
+    global SavePath 
+    SavePath = temp_dir
+    save_label.config(text=SavePath)
 
 ui = tk.Tk()
 ui.minsize(250,300)
@@ -90,7 +104,7 @@ settings_frame.grid(row=1, column=0, padx=10, pady=5)
 
 #Frame setup
 grid_frame = tk.Frame(settings_frame)
-grid_frame.grid(row=2, column=0, padx=10, pady=5)
+grid_frame.grid(row=0, column=0, padx=10, pady=5)
 
 #Label 
 grid_dim_label = tk.Label(grid_frame,text="Grid Dimensions")
@@ -124,7 +138,7 @@ grid_toggle.grid(row=2, column=1, padx=10, pady=5)
 
 #Frame setup
 cut_frame = tk.Frame(settings_frame)
-cut_frame.grid(row=3, column=0, padx=10, pady=5)
+cut_frame.grid(row=1, column=0, padx=10, pady=5)
 
 #Label 
 cut_dim_label = tk.Label(cut_frame,text="Cut Dimensions")
@@ -158,19 +172,18 @@ cut_label.grid(row=3, column=0, padx=10, pady=5)
 cut_toggle = tk.Checkbutton(cut_show_frame,variable=cut_val,command=update_img)
 cut_toggle.grid(row=3, column=1, padx=10, pady=5)
 
-#Settings toggles
+#Save path
 
-#orientation_frame = tk.Frame(settings_frame)
-#orientation_frame.grid(row=5, column=0)
-#orientation_label = tk.Label(orientation_frame,text="Orientation")
-#orientation_label.grid(row=0, column=0, padx=10, pady=5)
-#orientaion_pick = ttk.Combobox(orientation_frame,values=["Horizontal", "Virtical"])
-#orientaion_pick.current(0)
-#orientaion_pick.bind("<<ComboboxSelected>>",lambda _: update_img())
-#orientaion_pick.grid(row=0, column=1, padx=10, pady=5)
+save_path_frame = tk.Frame(settings_frame)
+save_path_frame.grid(row=2,column=0)
+save_path_button = tk.Button(save_path_frame,text="Save Path",command=get_save_path)
+save_path_button.grid(row=0, column=0, padx=10, pady=5)
+save_label = tk.Label(save_path_frame,text="")
+save_label.grid(row=0, column=1, padx=10, pady=5)
+
 
 #Start button
 go_button = tk.Button(settings_frame,text="go!",command=convert_map)
-go_button.grid(row=6, column=1, padx=10, pady=5)
+go_button.grid(row=3, column=1, padx=10, pady=5)
 
 ui.mainloop()
