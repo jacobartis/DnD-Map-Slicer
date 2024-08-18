@@ -10,7 +10,6 @@ Used to help add grids to combat maps and divide them for easy printing.
 - Enjoy!!
 
 Plans:
-- Set map scale
 - Use a standard A4 "stamp" to seperate the map into printable divisions
 - Save location for the files
-
+- Update the commandline version
