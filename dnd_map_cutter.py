@@ -74,14 +74,14 @@ def new_print_page(img:cv.typing.MatLike,x_start,y_start,sw:int=0,sh:int=0,horiz
 
 #TODO Make it form and return an array of the maps
 #Add save to different path option
-def generate_printable_map(img, width:float, height:float, add_grid:bool=True, horizontal:bool=False, show:bool=False, page_width=PAGE_SQ_X, page_height=PAGE_SQ_Y, save_path:str=""):
+def generate_printable_map(img, width:float, height:float, add_grid:bool=True, grid_color:list=[0,0,0], horizontal:bool=False, show:bool=False, page_width=PAGE_SQ_X, page_height=PAGE_SQ_Y, save_path:str=""):
 
     #Generates a new copy of the img.
     new_img = copy_img(img)
     square_dim = calculate_grid_size(new_img,width,height)
     #Puts an inch grid over the img.
     if add_grid:
-        grid(new_img,np.array([0,0,0]),1,width,height)
+        grid(new_img,np.array(grid_color),1,width,height)
 
     #Displays the imgs
     if show:
@@ -112,7 +112,7 @@ def generate_printable_map(img, width:float, height:float, add_grid:bool=True, h
                 if show:
                     cv.imshow(save_path+"{}_{}.png".format(x,y),cur)
             except Exception as e:
-                print(e)
+                print("Exception : ",e)
                 pass
     cv.imwrite("new_img.png",new_img)
 
