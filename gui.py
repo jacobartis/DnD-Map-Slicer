@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import colorchooser
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename, askdirectory
 from tkinter import messagebox
@@ -9,6 +10,9 @@ import dnd_map_cutter
 MAX_IMG_WIDTH = 400
 MAX_IMG_HEIGHT = 400
 
+global grid_color_code 
+grid_color_code = [0,0,0]
+
 #Splits the map using the dnd_map_cutter script
 def convert_map():
     path = ""
@@ -18,7 +22,8 @@ def convert_map():
         pass
     map_img = dnd_map_cutter.load_map(MapPath)
     try:
-        dnd_map_cutter.generate_printable_map(map_img,int(map_width.get()),int(map_height.get()),grid_val.get(),
+        dnd_map_cutter.generate_printable_map(map_img,float(map_width.get()),float(map_height.get()),grid_val.get(),
+                                              grid_color=grid_color_code,
                                               page_height=float(cut_height_val.get()),
                                               page_width=float(cut_width_val.get()), save_path=path)
     except Exception as e:
@@ -34,10 +39,10 @@ def update_img():
     #Uses PIL to open and resize the img
     map_img = dnd_map_cutter.load_map(MapPath)
     if grid_val.get():
-        dnd_map_cutter.grid(map_img,[0,0,0],3,int(map_width.get()),int(map_height.get()))
+        dnd_map_cutter.grid(map_img,grid_color_code,3,float(map_width.get()),float(map_height.get()))
 
     if cut_val.get():
-        dnd_map_cutter.grid(map_img,[255,0,0],5,int(map_width.get())/float(cut_width_val.get()),int(map_height.get())/float(cut_height_val.get()))
+        dnd_map_cutter.grid(map_img,[255,0,0],5,float(cut_width.get())/float(cut_width_val.get()),float(map_height.get())/float(cut_height_val.get()))
 
     img = cv.cvtColor(map_img, cv.COLOR_BGR2RGB)
     pil_img = Image.fromarray(img)
@@ -116,12 +121,12 @@ grid_dim_frame.grid(row=1, column=0, padx=10, pady=5)
 
 width_label = tk.Label(grid_dim_frame,text="Width: ")
 width_label.grid(row=0, column=0, padx=10, pady=5)
-map_width = tk.Spinbox(grid_dim_frame,command=update_img,from_=1, to=1000)
+map_width = tk.Spinbox(grid_dim_frame,command=update_img,from_=1, to=1000,increment=.1)
 map_width.grid(row=0, column=1, padx=10, pady=5)
 
 height_label = tk.Label(grid_dim_frame,text="Height: ")
 height_label.grid(row=0, column=2, padx=10, pady=5)
-map_height = tk.Spinbox(grid_dim_frame,command=update_img,from_=1, to=1000)
+map_height = tk.Spinbox(grid_dim_frame,command=update_img,from_=1, to=1000,increment=.1)
 map_height.grid(row=0, column=3, padx=10, pady=5)
 
 #Toggle button for grid
@@ -133,6 +138,20 @@ grid_label = tk.Label(grid_show_frame,text="Draw Grid: ")
 grid_label.grid(row=2, column=0, padx=10, pady=5)
 grid_toggle = tk.Checkbutton(grid_show_frame,variable=grid_val,command=update_img)
 grid_toggle.grid(row=2, column=1, padx=10, pady=5)
+
+#Colour selection for grid
+def color_select():
+    global grid_color_code 
+    color = colorchooser.askcolor(title ="Choose color")
+    if color:
+        #Colour is in a different order in the map editor for some reason (gbr)
+        grid_color_code = [color[0][2],color[0][1],color[0][0]]
+    update_img()
+color_select_frame = tk.Frame(grid_frame)
+color_select_frame.grid(row=3, column=0)
+button = tk.Button(color_select_frame, text = "Select color",
+                   command = color_select)
+button.grid(row=0, column=0, padx=10, pady=5)
 
 #Cut lines
 
@@ -152,14 +171,14 @@ cut_width_label = tk.Label(cut_dim_frame,text="Width: ")
 cut_width_label.grid(row=0, column=0, padx=10, pady=5)
 cut_width_val = tk.DoubleVar()
 cut_width_val.set(8)
-cut_width = tk.Spinbox(cut_dim_frame,command=update_img,from_=1, to=1000, increment=.5,textvariable=cut_width_val)
+cut_width = tk.Spinbox(cut_dim_frame,command=update_img,from_=1, to=1000, increment=.1,textvariable=cut_width_val)
 cut_width.grid(row=0, column=1, padx=10, pady=5)
 
 cut_height_label = tk.Label(cut_dim_frame,text="Height: ")
 cut_height_label.grid(row=0, column=2, padx=10, pady=5)
 cut_height_val = tk.DoubleVar()
 cut_height_val.set(11.5)
-cut_height = tk.Spinbox(cut_dim_frame,command=update_img,from_=1, to=1000, increment=.5,textvariable=cut_height_val)
+cut_height = tk.Spinbox(cut_dim_frame,command=update_img,from_=1, to=1000, increment=.1,textvariable=cut_height_val)
 cut_height.grid(row=0, column=3, padx=10, pady=5)
 
 #Toggle button for grid
