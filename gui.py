@@ -42,7 +42,7 @@ def update_img():
         dnd_map_cutter.grid(map_img,grid_color_code,3,float(map_width.get()),float(map_height.get()))
 
     if cut_val.get():
-        dnd_map_cutter.grid(map_img,[255,0,0],5,float(cut_width.get())/float(cut_width_val.get()),float(map_height.get())/float(cut_height_val.get()))
+        dnd_map_cutter.grid(map_img,[255,0,0],5,float(map_width.get())/float(cut_width_val.get()),float(map_height.get())/float(cut_height_val.get()))
 
     img = cv.cvtColor(map_img, cv.COLOR_BGR2RGB)
     pil_img = Image.fromarray(img)
